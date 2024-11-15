@@ -10,7 +10,7 @@ position = [0]*N
 sound_speed = 1
 
 rho0 = 1
-rho1 = 0.3
+rho1 = 0.03
 vel1 = (sound_speed*rho1)/rho0
 length = 2
 lamda = 1
@@ -26,16 +26,25 @@ for x in np.arange(0, 2, del_x):
     position[pos] = x
     pos += 1
 
-# print("this is den", density[400])
-# print("this is vel", velocity[588])\
-
-plt.title("t = 0.0 s")
-plt.xlabel("Position Axis")
-plt.ylabel("Velocity Axis")
-plt.plot(position, velocity, color="black")
-plt.show()
 
 print("tthis is delt", del_t)
+
+fig_v, v_axis = plt.subplots(2,2)
+fig_d, d_axis = plt.subplots(2,2)
+
+def plot_graph(plot, time, entity):
+    plot.set(xlabel='Position Axis', ylabel=f'{entity} Axis')
+
+    if time == 0:
+        plot.set_title("t = 0.0 s")
+    elif time == 0.3:
+        plot.set_title("t = 0.3 s")
+    elif time == 0.5:
+        plot.set_title("t = 0.5 s")
+    elif time == 1:
+        plot.set_title("t = 1.0 s")
+    return plot
+
 for t in np.arange(0, 1+del_t, del_t):
     copy_v = [0]*N
     copy_d = [0]*N
@@ -52,24 +61,33 @@ for t in np.arange(0, 1+del_t, del_t):
     velocity = np.copy(copy_v)
     density = np.copy(copy_d)
 
-    if t == 0.3:
-        plt.title("t = 0.3 s")
-        plt.xlabel("Position Axis")
-        plt.ylabel("Velocity Axis")
-        plt.plot(position, velocity, color="black")
-        plt.show()
-    elif t == 0.5:
-        plt.title("t = 0.5 s")
-        plt.xlabel("Position Axis")
-        plt.ylabel("Velocity Axis")
-        plt.plot(position, velocity, color="black")
-        plt.show()
-    elif t == 1:
-        plt.title("t = 1 s")
-        plt.xlabel("Position Axis")
-        plt.ylabel("Velocity Axis")
-        plt.plot(position, velocity, color="black")
-        plt.show()
+    plot_densty = [rho - rho0 for rho in density]
 
-# print("this is den", density[400])
-# print("this is vel", velocity[588])
+    if t == 0:
+        vel_t0 = plot_graph(v_axis[0,0], t, 'Velocity ($V_x$)')
+        den_t0 = plot_graph(d_axis[0,0], t, 'Density ($p - p_0$)')
+        vel_t0.plot(position, velocity, color="black")
+        den_t0.plot(position, plot_densty, color="black")
+    elif t == 0.3:
+        vel_t1 = plot_graph(v_axis[0,1], t, 'Velocity ($V_x$)')
+        den_t1 = plot_graph(d_axis[0,1], t, 'Density ($p - p_0$)')
+        vel_t1.plot(position, velocity, color="black")
+        den_t1.plot(position, plot_densty, color="black")
+
+    elif t == 0.5:
+        vel_t2 = plot_graph(v_axis[1,0], t, 'Velocity ($V_x$)')
+        den_t2 = plot_graph(d_axis[1,0], t, 'Density ($p - p_0$)')
+        vel_t2.plot(position, velocity, color="black")
+        den_t2.plot(position, plot_densty, color="black")
+
+    elif t == 1:
+        vel_t3 = plot_graph(v_axis[1,1], t, 'Velocity ($V_x$)')
+        den_t3 = plot_graph(d_axis[1,1], t, 'Density ($p - p_0$)')
+        vel_t3.plot(position, velocity, color="black")
+        den_t3.plot(position, plot_densty, color="black")
+
+fig_d.subplots_adjust(bottom=0.1, right=0.9, 
+                      top=0.9, wspace=0.6, hspace=0.6)
+fig_v.subplots_adjust(bottom=0.1, right=0.9, 
+                      top=0.9, wspace=0.6, hspace=0.6)
+plt.show()
