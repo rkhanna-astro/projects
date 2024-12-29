@@ -22,9 +22,24 @@ def plot_maxima(field, pos, plot):
         plot.plot(x_max, v_max, 'r*')
         plot.text(x_max, v_max, f'({x_max:.2f}, {v_max:.2f})', color='black', fontsize=6, ha='left', va='bottom')
 
+def find_closest(pos, val):
+  left = 0
+  right = len(pos) - 1
+
+  while left < right:
+     mid = int((left + right)/2)
+     if val < pos[mid]:
+       right = mid - 1
+     elif val > pos[mid]:
+       left = mid + 1
+     else:
+        return mid
+    
+  return left
+
 colormap = cm.viridis
-rho_0 = 1
-b_0 = 3
+rho_0 = 10
+b_0 = 1
 b_1 = 0.5
 vel_1 = -b_1/(math.sqrt(4*3.14*rho_0))
 N = 1000
@@ -45,16 +60,23 @@ pos = 0
 fig_v, v_plots = plt.subplots(1)
 fig_d, d_plots = plt.subplots(1)
 
+expected_speed = round(b_0/(4*3.14*rho_0)**(0.5), 2)
+# print(expected_speed)
+
 for x in np.arange(0, 2, del_x):
     mag_field[pos] = 1 + b_1*(math.cos((2*3.14*x)/lamda))
     vel_field[pos] = vel_1*(math.cos((2*3.14*x)/lamda))
-    position[pos] = x
+    position[pos] = float(x)
     pos += 1
 
 # plot_maxima(vel_field, position, v_plots)
 # plot_maxima(mag_field, position, d_plots)
 
 # print(mag_field)
+ind = 0
+#plotting velocity and magnetic field maxima
+# pos_v = 0.5
+# pos_b = 1
 
 for time in np.arange(0, 1 + del_t, del_t):
     vel_prev = vel_field[-1]
@@ -80,9 +102,25 @@ for time in np.arange(0, 1 + del_t, del_t):
     if time in time_evolution:
       vel_t = label_graph(v_plots, 'Velocity Wave ($V_Z$)')
       den_t = label_graph(d_plots, 'Magnetic Wave ($B_Z$)')
-    #   print("what is this", vel_t)
       vel_t.plot(position, vel_field, label = str(time) + 's', color=colormap(time))
       den_t.plot(position, mag_field, label = str(time) + 's', color=colormap(time))
+
+      if ind < len(time_evolution):
+        pos_v = 0.5 + expected_speed*time_evolution[ind]
+        pos_b = 1.0 + expected_speed*time_evolution[ind]
+      
+      # print(pos_v, pos_b)
+      ind_v = find_closest(position, pos_v)
+      ind_b = find_closest(position, pos_b)
+    
+      val_v = vel_field[ind_v]
+      val_b = mag_field[ind_b]
+    
+      vel_t.text(pos_v, val_v, f'{ind+1}')
+      den_t.text(pos_b, val_b, f'{ind+1}')
+
+      ind += 1
+# print(position)
 
 vel_t.legend(loc='upper right')
 den_t.legend(loc='upper right')
